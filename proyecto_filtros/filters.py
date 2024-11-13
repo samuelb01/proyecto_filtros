@@ -4,21 +4,23 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.signal import butter, sosfilt
 
+import matplotlib.pyplot as plt
+
 import os
 
 #import soundfile
 
-#import matplotlib
 
-PINK_NOISE = os.path.join("data", "pink_noise.wav")
+PINK_NOISE = os.path.join("data", "pink_noise_mono_48khz_16bits.wav")
 G =  10 ** (3/10)   # Octave frecuency ratio
 FR = 1000
 
+
 def cargarAudio(audio):
     # read(file) -> (rate: int, data: numpy array )
-    signal = wavfile.read(audio)
+    fs, data = wavfile.read(audio)
 
-    return signal
+    return fs, data
 
 
 def calcMidFrecuencies(b, x): 
@@ -27,6 +29,7 @@ def calcMidFrecuencies(b, x):
     fm = FR * (G ** (x/b))  # Exact mid-band frecuencies [array]
 
     return fm
+
 
 def thirdOctaveFilter():
 
@@ -47,7 +50,8 @@ def thirdOctaveFilter():
 
     # print(sos)
 
-    print(filtered_signals)
+    # print(filtered_signals)
+
 
 cargarAudio(PINK_NOISE)
 thirdOctaveFilter()
