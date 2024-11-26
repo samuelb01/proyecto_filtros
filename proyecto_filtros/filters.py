@@ -80,7 +80,6 @@ def thirdOctaveFilter(audio, selected_bands=[NOMINAL_THIRDOCTAVE_FREC[0], NOMINA
 
         band_levels.append(level)
 
-
     # Graficar niveles por bandas con barras uniformes
     widths = np.array(fh_selected_bands) - np.array(fl_selected_bands)    # Calcular ancho de las barras en escala logarítmica
     plt.figure(figsize=(10, 6))
@@ -88,14 +87,25 @@ def thirdOctaveFilter(audio, selected_bands=[NOMINAL_THIRDOCTAVE_FREC[0], NOMINA
     plt.xscale('log')
     plt.xlabel('Frecuencia (Hz)')
     plt.ylabel('Nivel (dB)')
-    plt.title('Niveles por bandas de tercios de octava (sin normalizar)')
 
+    # Se decide el título de la gráfica dependiendo del archivo de audio
+    if audio == WHITE_NOISE:
+        plt.title('Niveles por bandas de tercio de octava - Ruido blanco')
+    
+    elif audio == PINK_NOISE:
+        plt.title('Niveles por bandas de tercio de octava - Ruido rosa')
+   
     # Personalizar el eje X para mostrar todas las frecuencias centrales
     plt.xticks(fm, labels=[f"{int(freq)} Hz" if freq >= 100 else f"{freq:.1f} Hz" for freq in NOMINAL_THIRDOCTAVE_FREC], rotation=90)
 
     # Agregar la cuadrícula
     plt.grid(True, which="both", linestyle='--', linewidth=0.5)
     plt.tight_layout()
+
+    # Personalizar la barra de estado para mostrar x e y en escala logarítmica
+    ax = plt.gca()  # Get Current Axis
+    ax.format_coord = lambda x, y: f"x = {x:.1f} Hz, y = {y:.1f} dB"
+    
     plt.show()
 
 def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_FREC[-1]]):
@@ -133,11 +143,17 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
     # Graficar niveles por bandas con barras uniformes
     widths = np.array(fh_selected_bands) - np.array(fl_selected_bands)    # Calcular ancho de las barras en escala logarítmica
     plt.figure(figsize=(10, 6))
-    plt.bar(fm_selected_bands, band_levels, width=widths, align='center', color='skyblue', edgecolor='black')
+    plt.bar(fl_selected_bands, band_levels, width=widths, align='edge', color='skyblue', edgecolor='black')
     plt.xscale('log')
     plt.xlabel('Frecuencia (Hz)')
     plt.ylabel('Nivel (dB)')
-    plt.title('Niveles por bandas de tercios de octava (sin normalizar)')
+
+    # Se decide el título de la gráfica dependiendo del archivo de audio
+    if audio == WHITE_NOISE:
+        plt.title('Niveles por bandas de octava - Ruido blanco')
+    
+    elif audio == PINK_NOISE:
+        plt.title('Niveles por bandas de octava - Ruido rosa')
 
     # Personalizar el eje X para mostrar todas las frecuencias centrales
     plt.xticks(fm, labels=[f"{int(freq)} Hz" if freq >= 100 else f"{freq:.1f} Hz" for freq in NOMINAL_OCTAVE_FREC], rotation=45)
@@ -145,10 +161,16 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
     # Agregar la cuadrícula
     plt.grid(True, which="both", linestyle='--', linewidth=0.5)
     plt.tight_layout()
+
+    # Personalizar la barra de estado para mostrar x e y en escala logarítmica
+    ax = plt.gca()  # Get Current Axis
+    ax.format_coord = lambda x, y: f"x = {x:.1f} Hz, y = {y:.1f} dB"    # Formato para mostrar Hz y dB
+
     plt.show()
 
 
 octaveFilter(PINK_NOISE)
+octaveFilter(WHITE_NOISE)
 # thirdOctaveFilter(PINK_NOISE)
 # thirdOctaveFilter(WHITE_NOISE)
 
