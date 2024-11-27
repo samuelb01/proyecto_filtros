@@ -36,6 +36,25 @@ def calcMidFrecuencies(b, x):
     return fm
 
 
+def calcButterFilter(fs, signal_data, fl_selected_bands, fh_selected_bands):
+
+    N = 6   # Order of the filter
+    band_levels = []   # Array con las bandas filtradas
+    
+    # Aplicación de los filtros a la señal de audio
+    for f_low, f_High in zip(fl_selected_bands, fh_selected_bands):
+        sos = butter(N, [f_low, f_High], 'bandpass', False, 'sos', fs)  # Second Order Sections
+
+        filtered_signal = sosfilt(sos, signal_data) # Se filtra la señal de audio cono el filtro creado
+
+        rms = np.sqrt(np.mean(filtered_signal**2))  # Valor de amplitud RMS
+        level = 20 * np.log10(rms)  # Nivel de cada banda
+
+        band_levels.append(level)
+
+    return band_levels
+
+
 def calcRMS(filtered_values):
 
     rms_values = []
@@ -49,96 +68,14 @@ def calcRMS(filtered_values):
     return rms_values
 
 
-def thirdOctaveFilter(audio, selected_bands=[NOMINAL_THIRDOCTAVE_FREC[0], NOMINAL_THIRDOCTAVE_FREC[-1]]):
+def showLevels(audio, band_levels, fm, fl_selected_bands, fh_selected_bands):
 
-    fs, signal_data = cargarAudio(audio)    # Frecuencia de muestreo y datos de la señal de audio
-    b = 3   # Para tercios de octava es igual a 3. Para octavas sería 1.
+    # Decidir qué frecuencias nominales utilizar
+    if len(fm) == len(NOMINAL_THIRDOCTAVE_FREC):
+        NOMINAL_FRECUENCIES = NOMINAL_THIRDOCTAVE_FREC
 
-    x = np.arange(-16, 14)  # No incluye el último valor
-
-    fm = calcMidFrecuencies(b, x)   # Exact mid-band frecuencies [array]
-    fl = fm * (G ** (-1/(2 * b)))
-    fh = fm * (G ** (1/(2 * b)))
-
-    # Filtrar frecuencias dentro del rango proporcionado
-    indexes_selected_bands = [i for i, f in enumerate(NOMINAL_THIRDOCTAVE_FREC) if selected_bands[0] <= f <= selected_bands[1]]
-    fl_selected_bands = [fl[i] for i in indexes_selected_bands]
-    fh_selected_bands = [fh[i] for i in indexes_selected_bands]
-    fm_selected_bands = [fm[i] for i in indexes_selected_bands]
-
-    N = 6   # Order of the filter
-    band_levels = []   # Array con las bandas filtradas
-
-    # Aplicación de los filtros a la señal de audio
-    for f_low, f_High in zip(fl_selected_bands, fh_selected_bands):
-        sos = butter(N, [f_low, f_High], 'bandpass', False, 'sos', fs)  # Second Order Sections
-
-        filtered_signal = sosfilt(sos, signal_data) # Se filtra la señal de audio cono el filtro creado
-
-        rms = np.sqrt(np.mean(filtered_signal**2))  # Valor de amplitud RMS
-        level = 20 * np.log10(rms)  # Nivel de cada banda
-
-        band_levels.append(level)
-
-    # Graficar niveles por bandas con barras uniformes
-    widths = np.array(fh_selected_bands) - np.array(fl_selected_bands)    # Calcular ancho de las barras en escala logarítmica
-    plt.figure(figsize=(10, 6))
-    plt.bar(fm_selected_bands, band_levels, width=widths, align='center', color='skyblue', edgecolor='black')
-    plt.xscale('log')
-    plt.xlabel('Frecuencia (Hz)')
-    plt.ylabel('Nivel (dB)')
-
-    # Se decide el título de la gráfica dependiendo del archivo de audio
-    if audio == WHITE_NOISE:
-        plt.title('Niveles por bandas de tercio de octava - Ruido blanco')
-    
-    elif audio == PINK_NOISE:
-        plt.title('Niveles por bandas de tercio de octava - Ruido rosa')
-   
-    # Personalizar el eje X para mostrar todas las frecuencias centrales
-    plt.xticks(fm, labels=[f"{int(freq)} Hz" if freq >= 100 else f"{freq:.1f} Hz" for freq in NOMINAL_THIRDOCTAVE_FREC], rotation=90)
-
-    # Agregar la cuadrícula
-    plt.grid(True, which="both", linestyle='--', linewidth=0.5)
-    plt.tight_layout()
-
-    # Personalizar la barra de estado para mostrar x e y en escala logarítmica
-    ax = plt.gca()  # Get Current Axis
-    ax.format_coord = lambda x, y: f"x = {x:.1f} Hz, y = {y:.1f} dB"
-    
-    plt.show()
-
-def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_FREC[-1]]):
-
-    fs, signal_data = cargarAudio(audio)    # Frecuencia de muestreo y datos de la señal de audio
-    b = 1   # Para tercios de octava es igual a 3. Para octavas sería 1.
-
-    x = np.arange(-5, 5)  # No incluye el último valor
-    
-    fm = calcMidFrecuencies(b, x)   # Exact mid-band frecuencies [array]
-    fl = fm * (G ** (-1/(2 * b)))
-    fh = fm * (G ** (1/(2 * b)))
-
-    # Filtrar frecuencias dentro del rango proporcionado
-    indexes_selected_bands = [i for i, f in enumerate(NOMINAL_OCTAVE_FREC) if selected_bands[0] <= f <= selected_bands[1]]
-    fl_selected_bands = [fl[i] for i in indexes_selected_bands]
-    fh_selected_bands = [fh[i] for i in indexes_selected_bands]
-    fm_selected_bands = [fm[i] for i in indexes_selected_bands]
-
-    N = 6   # Order of the filter
-    band_levels = []   # Array con las bandas filtradas
-
-    # Aplicación de los filtros a la señal de audio
-    for f_low, f_High in zip(fl_selected_bands, fh_selected_bands):
-        sos = butter(N, [f_low, f_High], 'bandpass', False, 'sos', fs)  # Second Order Sections
-
-        filtered_signal = sosfilt(sos, signal_data) # Se filtra la señal de audio cono el filtro creado
-
-        rms = np.sqrt(np.mean(filtered_signal**2))  # Valor de amplitud RMS
-        level = 20 * np.log10(rms)  # Nivel de cada banda
-
-        band_levels.append(level)
-
+    elif len(fm) == len(NOMINAL_OCTAVE_FREC):
+        NOMINAL_FRECUENCIES = NOMINAL_OCTAVE_FREC
 
     # Graficar niveles por bandas con barras uniformes
     widths = np.array(fh_selected_bands) - np.array(fl_selected_bands)    # Calcular ancho de las barras en escala logarítmica
@@ -156,7 +93,7 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
         plt.title('Niveles por bandas de octava - Ruido rosa')
 
     # Personalizar el eje X para mostrar todas las frecuencias centrales
-    plt.xticks(fm, labels=[f"{int(freq)} Hz" if freq >= 100 else f"{freq:.1f} Hz" for freq in NOMINAL_OCTAVE_FREC], rotation=45)
+    plt.xticks(fm, labels=[f"{int(freq)} Hz" if freq >= 100 else f"{freq:.1f} Hz" for freq in NOMINAL_FRECUENCIES], rotation=45)
 
     # Agregar la cuadrícula
     plt.grid(True, which="both", linestyle='--', linewidth=0.5)
@@ -169,8 +106,53 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
     plt.show()
 
 
+def thirdOctaveFilter(audio, selected_bands=[NOMINAL_THIRDOCTAVE_FREC[0], NOMINAL_THIRDOCTAVE_FREC[-1]]):
+
+    fs, signal_data = cargarAudio(audio)    # Frecuencia de muestreo y datos de la señal de audio
+    b = 3   # Para tercios de octava es igual a 3. Para octavas sería 1.
+
+    x = np.arange(-16, 14)  # No incluye el último valor
+
+    fm = calcMidFrecuencies(b, x)   # Exact mid-band frecuencies [array]
+    fl = fm * (G ** (-1/(2 * b)))
+    fh = fm * (G ** (1/(2 * b)))
+
+    # Filtrar frecuencias dentro del rango proporcionado
+    indexes_selected_bands = [i for i, f in enumerate(NOMINAL_THIRDOCTAVE_FREC) if selected_bands[0] <= f <= selected_bands[1]]
+    fl_selected_bands = [fl[i] for i in indexes_selected_bands]
+    fh_selected_bands = [fh[i] for i in indexes_selected_bands]
+
+    # Aplicar filtro Butterworth
+    band_levels = calcButterFilter(fs, signal_data, fl_selected_bands, fh_selected_bands)
+
+    # Se muestran los niveles en dB en una gráfica
+    showLevels(audio, band_levels, fm, fl_selected_bands, fh_selected_bands)
+
+def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_FREC[-1]]):
+
+    fs, signal_data = cargarAudio(audio)    # Frecuencia de muestreo y datos de la señal de audio
+    b = 1   # Para tercios de octava es igual a 3. Para octavas sería 1.
+
+    x = np.arange(-5, 5)  # No incluye el último valor
+    
+    fm = calcMidFrecuencies(b, x)   # Exact mid-band frecuencies [array]
+    fl = fm * (G ** (-1/(2 * b)))
+    fh = fm * (G ** (1/(2 * b)))
+
+    # Filtrar frecuencias dentro del rango proporcionado
+    indexes_selected_bands = [i for i, f in enumerate(NOMINAL_OCTAVE_FREC) if selected_bands[0] <= f <= selected_bands[1]]
+    fl_selected_bands = [fl[i] for i in indexes_selected_bands]
+    fh_selected_bands = [fh[i] for i in indexes_selected_bands]
+
+    # Aplicar filtro Butterworth
+    band_levels = calcButterFilter(fs, signal_data, fl_selected_bands, fh_selected_bands)
+
+    # Se muestran los niveles en dB en una gráfica
+    showLevels(audio, band_levels, fm, fl_selected_bands, fh_selected_bands)
+
+
 octaveFilter(PINK_NOISE)
 octaveFilter(WHITE_NOISE)
-# thirdOctaveFilter(PINK_NOISE)
-# thirdOctaveFilter(WHITE_NOISE)
+thirdOctaveFilter(PINK_NOISE, [800, 12500])
+thirdOctaveFilter(WHITE_NOISE)
 
