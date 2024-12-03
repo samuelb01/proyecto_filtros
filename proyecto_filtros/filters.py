@@ -151,8 +151,8 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
     showLevels(audio, band_levels, fm, fl_selected_bands, fh_selected_bands)
 
 
-octaveFilter(PINK_NOISE)
-octaveFilter(WHITE_NOISE)
-thirdOctaveFilter(PINK_NOISE, [800, 12500])
-thirdOctaveFilter(WHITE_NOISE)
+# octaveFilter(PINK_NOISE)
+# octaveFilter(WHITE_NOISE)
+thirdOctaveFilter(PINK_NOISE)
+# thirdOctaveFilter(WHITE_NOISE)
 
