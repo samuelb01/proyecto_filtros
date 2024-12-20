@@ -153,6 +153,7 @@ def octaveFilter(audio, selected_bands=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_F
 
 # octaveFilter(PINK_NOISE)
 # octaveFilter(WHITE_NOISE)
-thirdOctaveFilter(PINK_NOISE)
+# thirdOctaveFilter(PINK_NOISE)
 # thirdOctaveFilter(WHITE_NOISE)
+# thirdOctaveFilter(PINK_NOISE, [500, 16000])
 

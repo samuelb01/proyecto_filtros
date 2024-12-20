@@ -1,9 +1,12 @@
+# import acoustics.generator
 import numpy as np
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
+
 from acoustics.signal import OctaveBand
 from acoustics.signal import bandpass
 import acoustics
+# from acoustics.standards.iec_61260_1_2014 import nominal_center_frequency
 
 import os
 
@@ -13,6 +16,7 @@ NOMINAL_THIRDOCTAVE_FREC = [25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 3
                             500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000,
                             6300, 8000, 10000, 12500, 16000, 20000]
 NOMINAL_OCTAVE_FREC = [31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
+
 
 
 def load_file(signal):
@@ -31,7 +35,7 @@ def load_file(signal):
 
 
 def calc_bands(fstart, fstop, fraction):
-    """calcula lsa frecuencas límites y centrales de cada banda
+    """calcula las frecuencias límites y centrales de cada banda
 
     Args:
         fstart (int): frecuencia de inicio
@@ -59,7 +63,7 @@ def bands_filter(fs, signal_data, lower_frecencies, upper_frequencies):
 
     Returns:
         band_levels (list): niveles de cada banda
-    """    
+    """ 
     band_levels = []
 
     for f_low, f_high in zip(lower_frecencies, upper_frequencies):
@@ -67,12 +71,12 @@ def bands_filter(fs, signal_data, lower_frecencies, upper_frequencies):
         filtered_signal = bandpass(signal_data, f_low, f_high, fs)
         rms = np.sqrt(np.mean(filtered_signal ** 2))  # RMS de la señal filtrada
         band_levels.append(20 * np.log10(rms))  # Nivel en dB
-
+    
     return band_levels
+    
 
 
 def show_levels(signal, band_levels, nominal_central_frequencies, lower_frequencies, upper_frequencies):
-    print(type(band_levels))
     """Muestra una gráfica de niveles por banda
 
     Args:
@@ -109,7 +113,7 @@ def third_octave_filter(signal, range=[NOMINAL_THIRDOCTAVE_FREC[0], NOMINAL_THIR
 
 
 def octave_filter(signal, range=[NOMINAL_OCTAVE_FREC[0], NOMINAL_OCTAVE_FREC[-1]]):
-    """Realiza el filtrado en tercios de octava y lo muestra
+    """Realiza el filtrado octavas y lo muestra
 
     Args:
         signal (str): signal a filtrar
@@ -126,3 +130,5 @@ third_octave_filter(PINK_NOISE)
 octave_filter(PINK_NOISE)
 third_octave_filter(WHITE_NOISE)
 octave_filter(WHITE_NOISE)
+
+# third_octave_filter(PINK_NOISE, [500, 8000])
